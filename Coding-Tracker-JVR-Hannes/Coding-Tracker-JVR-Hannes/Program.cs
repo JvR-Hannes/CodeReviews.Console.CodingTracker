@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
 using Spectre.Console;
 namespace Coding_Tracker_JVR_Hannes
 {
@@ -7,7 +6,7 @@ namespace Coding_Tracker_JVR_Hannes
     {
         static void Main(string[] args)
         {
-            string dbFolderPath = ConfigurationManager.AppSettings["DatabasePath"];
+            string dbFolderPath = System.Configuration.ConfigurationManager.AppSettings["DatabasePath"];
             string fullDbPath = Path.Combine(dbFolderPath, "coding-Tracker.db");
             string connectionString = $"Data Source={fullDbPath}; Version=3;";
 
