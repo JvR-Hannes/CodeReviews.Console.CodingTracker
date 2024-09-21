@@ -81,5 +81,58 @@ namespace Coding_Tracker_JVR_Hannes
                 connection.Close();
             }
         }
+        public void UpdateCodingSession(CodingSession session)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    @"UPDATE coding_session 
+              SET StartTime = @startTime, EndTime = @endTime, Duration = @duration 
+              WHERE Id = @id";
+
+                tableCmd.Parameters.AddWithValue("@id", session.Id);
+                tableCmd.Parameters.AddWithValue("@startTime", session.StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                tableCmd.Parameters.AddWithValue("@endTime", session.EndTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                tableCmd.Parameters.AddWithValue("@duration", (session.EndTime - session.StartTime).TotalHours);
+
+                tableCmd.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+        public CodingSession GetCodingSessionById(int id)
+        {
+            CodingSession codingSession = null;
+
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    @"SELECT Id, StartTime, EndTime 
+              FROM coding_session 
+              WHERE Id = @id";
+
+                tableCmd.Parameters.AddWithValue("@id", id);
+
+                using (var reader = tableCmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        codingSession = new CodingSession
+                        {
+                            Id = reader.GetInt32(0),
+                            StartTime = DateTime.Parse(reader.GetString(1)),
+                            EndTime = DateTime.Parse(reader.GetString(2)),
+                        };
+                    }
+                }
+                connection.Close();
+            }
+            return codingSession;
+        }
     }
 }

@@ -47,6 +47,7 @@ namespace Coding_Tracker_JVR_Hannes
                 AnsiConsole.MarkupLine("Type [bold]2[/] to Insert Time.");
                 AnsiConsole.MarkupLine("Type [bold]3[/] to Delete Time.");
                 AnsiConsole.MarkupLine("Type [bold]4[/] to Clear the Database.");
+                AnsiConsole.MarkupLine("Type [bold]5[/] to Update a Time Record.");
                 AnsiConsole.MarkupLine("\n[lime]++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[/]\n");
 
                 string command = Console.ReadLine();
@@ -70,7 +71,7 @@ namespace Coding_Tracker_JVR_Hannes
                         }
                         else
                         {
-                            AnsiConsole.MarkupLine("[red]No Records Found!");
+                            AnsiConsole.MarkupLine("[red]No Records Found![/]");
                         }
 
                         break;
@@ -122,6 +123,53 @@ namespace Coding_Tracker_JVR_Hannes
                         else
                         {
                             AnsiConsole.MarkupLine("[green]Operation cancelled.[/]");
+                        }
+                        break;
+                    case "5":
+                        AnsiConsole.MarkupLine("[blue]Enter the ID of the session to update: [/]");
+
+                        if (int.TryParse(Console.ReadLine(), out int updateId))
+                        {
+                            var sessionToUpdate = codingController.GetCodingSessionById(updateId);
+
+                            if (sessionToUpdate != null)
+                            {
+                                AnsiConsole.MarkupLine("[yellow]Leave blank to keep the current value.[/]");
+
+                                // Ask for updated StartTime
+                                var updatedStartTimeString = AnsiConsole.Ask<string>($"[blue]Enter new start time[/] [bold yellow](yyyy-MM-dd HH:mm:ss): [/] (current: {sessionToUpdate.StartTime})", sessionToUpdate.StartTime.ToString());
+                                DateTime updatedStartTime;
+                                if (string.IsNullOrWhiteSpace(updatedStartTimeString) || !DateTime.TryParse(updatedStartTimeString, out updatedStartTime))
+                                {
+                                    updatedStartTime = sessionToUpdate.StartTime;
+                                }
+
+                                // Ask for updated EndTime
+                                var updatedEndTimeString = AnsiConsole.Ask<string>($"[blue]Enter new end time[/] [bold yellow](yyyy-MM-dd HH:mm:ss): [/] (current: {sessionToUpdate.EndTime})", sessionToUpdate.EndTime.ToString());
+                                DateTime updatedEndTime;
+                                if (string.IsNullOrWhiteSpace(updatedEndTimeString) || !DateTime.TryParse(updatedEndTimeString, out updatedEndTime))
+                                {
+                                    updatedEndTime = sessionToUpdate.EndTime;
+                                }
+
+                                // Update the session
+                                codingController.UpdateCodingSession(new CodingSession
+                                {
+                                    Id = updateId,
+                                    StartTime = updatedStartTime,
+                                    EndTime = updatedEndTime
+                                });
+
+                                AnsiConsole.MarkupLine("[green]Session updated successfully![/]");
+                            }
+                            else
+                            {
+                                AnsiConsole.MarkupLine("[red]Session not found![/]");
+                            }
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[red]Invalid ID format![/]");
                         }
                         break;
                     default:
